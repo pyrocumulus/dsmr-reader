@@ -23,6 +23,7 @@ import dsmr_datalogger.signals
 
 dsmrreader_logger = logging.getLogger('dsmrreader')
 django_logger = logging.getLogger('django')
+commands_logger = logging.getLogger('commands')
 
 
 def get_dsmr_connection_parameters():
@@ -107,7 +108,7 @@ def read_telegram():
 
 def verify_telegram_checksum(data):
     """
-    Verifies telegram by checking it's CRC. Raises exception on failure. DSMR docs state:
+    Verifies telegram by checking its CRC. Raises exception on failure. DSMR docs state:
     CRC is a CRC16 value calculated over the preceding characters in the data message (from / to ! using the polynomial)
     """
     matches = re.search(r'^(/[^!]+!)([A-Z0-9]{4})', data)
@@ -129,9 +130,15 @@ def verify_telegram_checksum(data):
     crc16_function = crcmod.predefined.mkPredefinedCrcFun('crc16')
     calculated_checksum = crc16_function(telegram)  # For example: 56708
 
+    # HEX format.
+    hex_telegram_checksum = '{:0>4}'.format(hex(telegram_checksum)[2:].upper())
+    hex_calculated_checksum = '{:0>4}'.format(hex(calculated_checksum)[2:].upper())
+
     if telegram_checksum != calculated_checksum:
         raise InvalidTelegramError(
-            'CRC mismatch: {} (telegram) != {} (calculated)'.format(telegram_checksum, calculated_checksum)
+            'CRC mismatch: {} / {} (telegram) != {} / {} (calculated)'.format(
+                telegram_checksum, hex_telegram_checksum, calculated_checksum, hex_calculated_checksum
+            )
         )
 
 
@@ -143,7 +150,7 @@ def _convert_legacy_dsmr_gas_line(parsed_reading, current_line, next_line):
         legacy_gas_line = current_line + next_line
 
     legacy_gas_result = re.search(
-        r'[^(]+\((\d+)\)\(\d+\)\(\d+\)\(\d+\)\([0-9-.:]+\)\(m3\)\(([0-9.]+)\)',
+        r'[^(]+\((\d+)\)\(\w+\)\(\d+\)\(\d+\)\([0-9-.:]+\)\(m3\)\(([0-9.]+)\)',
         legacy_gas_line
     )
     gas_timestamp = legacy_gas_result.group(1)
@@ -178,7 +185,7 @@ def telegram_to_reading(data):  # noqa: C901
 
     if connection_parameters['crc'] and datalogger_settings.verify_telegram_crc:
         try:
-            # Verify telegram by checking it's CRC.
+            # Verify telegram by checking its CRC.
             verify_telegram_checksum(data=data)
         except InvalidTelegramError as error:
             # Hook to keep track of failed readings count.
@@ -252,6 +259,9 @@ def telegram_to_reading(data):  # noqa: C901
             'phase_currently_delivered_l1': None,
             'phase_currently_delivered_l2': None,
             'phase_currently_delivered_l3': None,
+            'phase_currently_returned_l1': None,
+            'phase_currently_returned_l2': None,
+            'phase_currently_returned_l3': None,
         })
 
     # Now we need to split reading & statistics. So we split the dict here.
@@ -359,7 +369,7 @@ def apply_data_retention():
             ]
 
             # Now drop all others.
-            print('Retention | Cleaning up: {} ({})'.format(current_hour, data_set[0].__class__.__name__))
+            commands_logger.debug('Retention | Cleaning up: %s (%s)', current_hour, data_set[0].__class__.__name__)
             data_set.exclude(pk__in=keeper_pks).delete()
 
     timezone.deactivate()

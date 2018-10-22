@@ -1,7 +1,9 @@
 from datetime import time
 from decimal import Decimal, ROUND_UP
+import logging
 import pytz
 
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db.models import Avg, Min, Max, Count
 from django.db.utils import IntegrityError
 from django.utils import timezone, formats
@@ -13,6 +15,9 @@ from dsmr_datalogger.models.reading import DsmrReading
 from dsmr_weather.models.reading import TemperatureReading
 from dsmr_stats.models.note import Note
 from dsmr_datalogger.models.statistics import MeterStatistics
+
+
+logger = logging.getLogger('commands')
 
 
 def compact_all():
@@ -34,8 +39,13 @@ def compact(dsmr_reading):
     ).replace(tzinfo=pytz.UTC)
 
     if grouping_type == ConsumptionSettings.COMPACTOR_GROUPING_BY_MINUTE:
-        # Postpone when current minute hasn't passed yet.
-        if timezone.now() <= reading_start + timezone.timedelta(minutes=1):
+        system_time_past_minute = timezone.now() >= reading_start + timezone.timedelta(minutes=1)
+        reading_past_minute_exists = DsmrReading.objects.filter(
+            timestamp__gte=reading_start + timezone.timedelta(minutes=1)
+        ).exists()
+
+        # Postpone until the minute has passed on the system time. And when there are (new) readings beyond this minute.
+        if not system_time_past_minute or not reading_past_minute_exists:
             return
 
     # Create consumption records.
@@ -46,7 +56,7 @@ def compact(dsmr_reading):
     dsmr_reading.save(update_fields=['processed'])
 
     # For backend logging in Supervisor.
-    print(' - Processed reading: {}'.format(dsmr_reading))
+    logger.debug(' - Processed reading: %s', dsmr_reading)
 
 
 def _compact_electricity(dsmr_reading, grouping_type, reading_start):
@@ -67,6 +77,9 @@ def _compact_electricity(dsmr_reading, grouping_type, reading_start):
                 phase_currently_delivered_l1=dsmr_reading.phase_currently_delivered_l1,
                 phase_currently_delivered_l2=dsmr_reading.phase_currently_delivered_l2,
                 phase_currently_delivered_l3=dsmr_reading.phase_currently_delivered_l3,
+                phase_currently_returned_l1=dsmr_reading.phase_currently_returned_l1,
+                phase_currently_returned_l2=dsmr_reading.phase_currently_returned_l2,
+                phase_currently_returned_l3=dsmr_reading.phase_currently_returned_l3,
             )
         except IntegrityError:
             # This might happen, even though rarely, when the same timestamp with different values comes by.
@@ -92,6 +105,9 @@ def _compact_electricity(dsmr_reading, grouping_type, reading_start):
         avg_phase_delivered_l1=Avg('phase_currently_delivered_l1'),
         avg_phase_delivered_l2=Avg('phase_currently_delivered_l2'),
         avg_phase_delivered_l3=Avg('phase_currently_delivered_l3'),
+        avg_phase_return_l1=Avg('phase_currently_returned_l1'),
+        avg_phase_return_l2=Avg('phase_currently_returned_l2'),
+        avg_phase_return_l3=Avg('phase_currently_returned_l3'),
     )
 
     # This instance is the average/max and combined result.
@@ -106,6 +122,9 @@ def _compact_electricity(dsmr_reading, grouping_type, reading_start):
         phase_currently_delivered_l1=grouped_reading['avg_phase_delivered_l1'],
         phase_currently_delivered_l2=grouped_reading['avg_phase_delivered_l2'],
         phase_currently_delivered_l3=grouped_reading['avg_phase_delivered_l3'],
+        phase_currently_returned_l1=grouped_reading['avg_phase_return_l1'],
+        phase_currently_returned_l2=grouped_reading['avg_phase_return_l2'],
+        phase_currently_returned_l3=grouped_reading['avg_phase_return_l3'],
     )
 
 
@@ -234,9 +253,17 @@ def day_consumption(day):
         )
         consumption['total_cost'] += consumption['gas_cost']
 
+    # Current prices as well.
+    consumption['energy_supplier_price_electricity_delivered_1'] = daily_energy_price.electricity_delivered_1_price
+    consumption['energy_supplier_price_electricity_delivered_2'] = daily_energy_price.electricity_delivered_2_price
+    consumption['energy_supplier_price_electricity_returned_1'] = daily_energy_price.electricity_returned_1_price
+    consumption['energy_supplier_price_electricity_returned_2'] = daily_energy_price.electricity_returned_2_price
+    consumption['energy_supplier_price_gas'] = daily_energy_price.gas_price
+
+    # Any notes of that day.
     consumption['notes'] = Note.objects.filter(day=day).values_list('description', flat=True)
 
-    # Remperature readings are not mandatory as well.
+    # Temperature readings are not mandatory as well.
     temperature_readings = TemperatureReading.objects.filter(
         read_at__gte=day_start, read_at__lt=day_end,
     ).order_by('read_at')
@@ -252,6 +279,56 @@ def day_consumption(day):
     consumption['average_temperature'] = round_decimal(consumption['average_temperature'])
 
     return consumption
+
+
+def live_electricity_consumption(use_naturaltime=True):
+    """ Returns the current latest/live consumption. """
+    data = {}
+
+    try:
+        latest_reading = DsmrReading.objects.all().order_by('-pk')[0]
+    except IndexError:
+        # Don't even bother when no data available.
+        return data
+
+    latest_timestamp = latest_reading.timestamp
+
+    # In case the smart meter is running a clock in the future.
+    if latest_timestamp > timezone.now():
+        latest_timestamp = timezone.now()
+
+    data['timestamp'] = latest_timestamp
+    data['currently_delivered'] = int(latest_reading.electricity_currently_delivered * 1000)
+    data['currently_returned'] = int(latest_reading.electricity_currently_returned * 1000)
+
+    if use_naturaltime:
+        data['timestamp'] = naturaltime(data['timestamp'])
+
+    try:
+        # This WILL fail when we either have no prices at all or conflicting ranges.
+        prices = EnergySupplierPrice.objects.by_date(target_date=timezone.now().date())
+    except (EnergySupplierPrice.DoesNotExist, EnergySupplierPrice.MultipleObjectsReturned):
+        return data
+
+    # We need to current tariff to get the right price.
+    tariff = MeterStatistics.get_solo().electricity_tariff
+    cost_per_hour = None
+
+    tariff_map = {
+        1: prices.electricity_delivered_1_price,
+        2: prices.electricity_delivered_2_price,
+    }
+
+    try:
+        cost_per_hour = latest_reading.electricity_currently_delivered * tariff_map[tariff]
+    except KeyError:
+        pass
+    else:
+        data['cost_per_hour'] = formats.number_format(
+            round_decimal(cost_per_hour)
+        )
+
+    return data
 
 
 def round_decimal(decimal_price):
@@ -322,3 +399,29 @@ def clear_consumption():
     """ Clears ALL consumption data ever generated. """
     ElectricityConsumption.objects.all().delete()
     GasConsumption.objects.all().delete()
+
+
+def summarize_energy_contracts():
+    """ Returns a summery of all energy contracts and some statistics along them. """
+    import dsmr_stats.services  # Prevents circular import.
+
+    data = []
+
+    for current in EnergySupplierPrice.objects.all().order_by('-start'):
+        summary = dsmr_stats.services.range_statistics(start=current.start, end=current.end or timezone.now().date())
+
+        data.append({
+            'description': current.description,
+            'start': current.start,
+            'end': current.end,
+            'summary': summary,
+            'prices': {
+                'electricity_delivered_1_price': current.electricity_delivered_1_price,
+                'electricity_delivered_2_price': current.electricity_delivered_2_price,
+                'gas_price': current.gas_price,
+                'electricity_returned_1_price': current.electricity_returned_1_price,
+                'electricity_returned_2_price': current.electricity_returned_2_price,
+            }
+        })
+
+    return data

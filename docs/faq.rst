@@ -31,58 +31,6 @@ It will make sure to check, fetch and apply any changes released. Summary of dep
 - Clear any caches.
 
 
-Dropbox: Automated backup sync
-------------------------------
-
-:doc:`More information can be found here<dropbox>`.
-
-
-Mindergas.nl: Automated gas meter position export
--------------------------------------------------
-
-:doc:`More information can be found here<mindergas>`.
-
-
-PVOutput.org: Automated electricity consumption export
-------------------------------------------------------
-
-:doc:`More information can be found here<pvoutput>`.
-
-
-Usage notification: Daily usage statistics on your smartphone
--------------------------------------------------------------
-
-:doc:`More information can be found here<notifications>`.
-
-
-I only pay for a single electricity tariff but I see two!
----------------------------------------------------------
-DSMR (and your energy supplier) always reads both high and low tariff from your meter. 
-It's possible however that you are only paying for a single tariff. 
-In that case your energy supplier will simply merge both high and low tariffs to make it look like you have a single one.
-
-This application displays separate tariffs by default, but supports merging them to a single one as well.
-Just make sure that you apply the **same price to both electricity 1 and 2** and enable the option ``Merge electricity tariffs`` in the frontend configuration.
-
-
-I want to see the load of each electricity phase as well
----------------------------------------------------------
-Since ``DSMR-reader v1.5`` it's possible to track your ``P+`` (consumption) phases as well. You will need to enable this in the ``Datalogger configuration``.
-There is a setting called ``Track electricity phases``. When active, this will log the current usage of those phases and plot these on the Dashboard page.
-
-Please keep in mind:
-
-- This will **not work retroactively**. The datalogger always discards all data not used.
-- This feature will only work when your smart meter is connected to **three phases**. Even when having the setting enabled.
-- When having tracking phases enabled, you should see a button in the Dashboard called ``Display electricity phases``. Click on it to show the graph.
-
-You should see something similar to:
-
-.. image:: _static/screenshots/phases.png
-    :target: _static/screenshots/phases.png
-    :alt: Phases
-
-
 Recalculate prices retroactively
 --------------------------------
 *I've adjusted my energy prices but there are no changes! How can I regenerate them with my new prices?*
@@ -163,6 +111,23 @@ How do I enable timezone support for MySQL?
 On recent versions it should be as simple as executing the following command as root/sudo user::
 
     mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+
+
+
+How do I retain MQTT support when upgrading to v1.23.0 or higher?
+-----------------------------------------------------------------
+
+Starting from ``v1.23.0`` DSMR-reader requires a dedicated process for processing MQTT messages (``dsmr_mqtt``).
+Fresh installations automatically include the ``dsmr_mqtt`` process. Existing installations however, should add ``dsmr_mqtt`` manually. Instructions:
+
+* Please upgrade to ``v1.23.0`` or higher first.
+* Now execute the following commands as **root/sudo-user**::
+
+    # NOTE: This will overwrite /etc/supervisor/conf.d/dsmr-reader.conf
+    sudo cp /home/dsmr/dsmr-reader/dsmrreader/provisioning/supervisor/dsmr-reader.conf /etc/supervisor/conf.d/
+    sudo supervisorctl reread
+    sudo supervisorctl update
+
 
 
 Feature/bug report

@@ -1,121 +1,131 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2016, Dennis Siemensma
-# This file is distributed under the same license as the DSMR Reader
+# Copyright (C) 2015 - 2018, Dennis Siemensma
+# This file is distributed under the same license as the DSMR-reader
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: DSMR Reader v1.x\n"
-"Report-Msgid-Bugs-To: Dennis Siemensma <github@dennissiemensma.nl>\n"
-"Last-Translator: Dennis Siemensma <github@dennissiemensma.nl>\n"
-"Language-Team: Dennis Siemensma <github@dennissiemensma.nl>\n"
+"Project-Id-Version: DSMR-reader \n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
-"Language: nl\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"Generated-By: Babel 2.5.1\n"
 
 #: ../../notifications.rst:2
 msgid "Integration: Notifications"
-msgstr "Integratie: Notificaties"
+msgstr ""
+
+#: ../../notifications.rst:7
+msgid "Contents"
+msgstr ""
 
 #: ../../notifications.rst:10
 msgid "Usage notification: Daily usage statistics on your smartphone"
-msgstr "Verbruiksnotificaties: Dagelijkse verbruiksstatistieken op je smartphone"
-
-#: ../../notifications.rst:11
-msgid "*Which services for sending notifications are supported?*"
-msgstr "*Welke services voor het sturen van notificaties worden ondersteund?*"
+msgstr ""
 
 #: ../../notifications.rst:13
-msgid ""
-"Currently, two mobile platforms are supported: Android and iOS. The supported "
-"app for Android is `NotifyMyAndroid <https://www.notifymyandroid.com>`_. The "
-"supported app for iOS is `Prowl <https://www.prowlapp.com>`_."
+msgid "Which services for sending notifications are supported?"
 msgstr ""
-"Op dit moment worden twee platforms ondersteund: Android en iOS. De "
-"ondersteunde app voor Android is `NotifyMyAndroid <https://www.notifymyandroid."
-"com>`_. De ondersteunde app voor iOS is `Prowl <https://www.prowlapp.com>`_."
+
+#: ../../notifications.rst:15
+msgid "Currently, two mobile platforms are supported: Android and iOS."
+msgstr ""
+
+#: ../../notifications.rst:17
+msgid "The supported app for Android is `Pushover <https://pushover.net>`_."
+msgstr ""
 
 #: ../../notifications.rst:18
-msgid "*How do I setup usage notifications?*"
-msgstr "*Hoe stel ik verbruiksnotificaties in?*"
-
-#: ../../notifications.rst:20
 msgid ""
-"Make sure you either have NotifyMyAndroid or Prowl installed on your "
-"smartphone. If you don't, visit your platforms app store to download the app "
-"and sign up for an account. Then, make sure to get your API key from the "
-"notificationservice that you prefer. For instruction on obtaining the API key, "
-"please read below."
+"The supported apps for iOS are `Pushover <https://pushover.net>`_ and "
+"`Prowl <https://www.prowlapp.com>`_."
 msgstr ""
-"Zorg ervoor dat je NotifyMyAndroid of Prowl hebt geïnstalleerd op je "
-"smartphone. Als dat niet het geval is, bezoek dan de app store van je "
-"platform, download de gewenste app en maak daarvoor een account. Daarna haal "
-"je de API key voor de notificatieservice die je wilt gebruiken op. Om te lezen "
-"hoe dat werkt, lees dan de instructies bij de volgende kopjes."
 
 #: ../../notifications.rst:22
-msgid ""
-"In the DSMR-reader settings for the Usagenotifications, tick the Send "
-"Notifications checkbox and select the notification service you want to use. "
-"Then copy the API key from the notification service and paste in into the the "
-"textbox for the API key. When you save these settings, your first notification "
-"should be sent after midnight. Don't worry, the notification will be sent with "
-"low priority and will not wake you up."
+msgid "How do I setup usage notifications?"
 msgstr ""
-"In de DSMR-reader instellingen voor de Verbruiksnotificaties zet je een vinkje "
-"bij Stuur Notificaties en selecteer daaronder welke notificatieservice je wilt "
-"gebruiken. Kopieeër daarna de API key van de notificatieservice en plak deze "
-"in het tekstveld voor de API key. Als je deze instellingen opslaat zul je na "
-"middernacht je eerste notificatie ontvangen. Geen nood, de notificatie wordt "
-"altijd verstuurd met lage prioriteit, deze maakt je dus niet wakker."
 
-#: ../../notifications.rst:25
-msgid "*How do I obtain my API key for NotifyMyAndroid?*"
-msgstr "*Hoe haal ik de API key op voor NotifyMyAndroid?*"
-
-#: ../../notifications.rst:27
+#: ../../notifications.rst:24
 msgid ""
-"After you have downloaded NotifyMyAndroid and signed up for an account you "
-"should be able to `login to your NotifyMyAndroid account <https://www."
-"notifymyandroid.com/index.jsp>`_. Now go to \"`My Account <https://www."
-"notifymyandroid.com/account.jsp>`_\", you should see an overview of your "
-"current API keys if you have any. To create an API key for the DSMR-reader, "
-"please click **\"Generate New Key\"**."
+"Make sure you either have Pushover or Prowl installed on your smartphone."
+" If you don't, visit your platforms app store to download the app and "
+"sign up for an account. Then, make sure to get your API key from the "
+"notification service that you prefer. For instruction on obtaining the "
+"API key, please read below."
 msgstr ""
-"Nadat je NotifyMyAndroid hebt gedownload en een account hebt aangemaakt zou je "
-"moeten kunnen `inloggen op je NotifyMyAndroid-account <https://www."
-"notifymyandroid.com/index.jsp>`_. Ga nu naar \"`My Account <https://www."
-"notifymyandroid.com/account.jsp>`_\" om een overzicht van je account de API "
-"keys te krijgen als je deze al hebt. Om een API key voor de DSMR-reader te "
-"genereren klik je op **\"Generate New Key\"**."
 
-#: ../../notifications.rst:34 ../../notifications.rst:50
+#: ../../notifications.rst:29
 msgid ""
-"When a new key is generated, you will see it immediatly. Your key is listed "
-"like in the screenshot below (the red box marks your API key)."
+"In the DSMR-reader **Notifications Apps** settings, select the "
+"notification service you want to use. Copy the API key from the "
+"notification service and paste in into the the textbox for the API key. "
+"When you save these settings, your first notification should be sent "
+"after midnight. Don't worry about nightly alerts, the notifications will "
+"be sent with low priority and should not wake you up."
 msgstr ""
-"Als er een nieuwe key is gegenereerd, zie je deze direct. De key is te vinden "
-"zoals in onderstaande screenshot (er staat een rood kader om de key)."
 
-#: ../../notifications.rst:41
-msgid "*How do I obtain my API key for Prowl?*"
-msgstr "*Hoe haal ik de API key op voor Prowl?*"
+#: ../../notifications.rst:36
+msgid "How do I obtain my API key for Pushover?"
+msgstr ""
+
+#: ../../notifications.rst:38
+msgid ""
+"After you have downloaded Pushover and signed up for an account you "
+"should be able to `login into your Pushover account "
+"<https://pushover.net>`_."
+msgstr ""
+
+#: ../../notifications.rst:40
+msgid ""
+"You should see an overview of containing **Your User Key** (top right) "
+"and Applications, if you have any. To create an application in Pushover, "
+"for sending notifications to your phone, please click **Create an "
+"Application/API Token**."
+msgstr ""
 
 #: ../../notifications.rst:43
-msgid ""
-"After you have downloaded Prowl and signed up for an account you should be "
-"able to `login to your Prowl account <https://www.prowlapp.com/login.php>`_. "
-"Now go to \"`API Keys <https://www.prowlapp.com/api_settings.php>`_\", you "
-"should see an overview of your current API keys if you have any. To create an "
-"API key for the DSMR-reader, input a name and click **\"Generate Key\"**."
+msgid "Pushover requires you to enter two keys in DSMR-reader."
 msgstr ""
-"Nadat je Prowl hebt gedownload en een account hebt aangemaakt zou je moeten "
-"kunnen `inloggen op je Prowl-account <https://www.prowlapp.com/login.php>`_. "
-"Ga nu naar \"`API Keys <https://www.prowlapp.com/api_settings.php>`_\" om een "
-"overzicht van je API keys te krijgen als je deze al hebt. Om een API key voor "
-"de DSMR-reader te genereren geef je een naam op en klik je op **\"Generate Key"
-"\"**."
+
+#: ../../notifications.rst:45
+msgid ""
+"You will need the **User Key** displayed on the top right in the "
+"screenshot below."
+msgstr ""
+
+#: ../../notifications.rst:46
+msgid ""
+"And you will need the **API key** for the application you've created in "
+"Pushover."
+msgstr ""
+
+#: ../../notifications.rst:54
+msgid "How do I obtain my API key for Prowl?"
+msgstr ""
+
+#: ../../notifications.rst:56
+msgid ""
+"After you have downloaded Prowl and signed up for an account you should "
+"be able to `login into your Prowl account "
+"<https://www.prowlapp.com/login.php>`_."
+msgstr ""
+
+#: ../../notifications.rst:58
+msgid ""
+"Now go to \"`API Keys <https://www.prowlapp.com/api_settings.php>`_\", "
+"you should see an overview of your current API keys if you have any. To "
+"create an API key for the DSMR-reader, input a name and click "
+"**\"Generate Key\"**."
+msgstr ""
+
+#: ../../notifications.rst:65
+msgid ""
+"When a new key is generated, you will see it immediatly. Your key is "
+"listed like in the screenshot below (the red box marks your API key)."
+msgstr ""
+

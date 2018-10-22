@@ -1,3 +1,5 @@
+import logging
+
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 from django.conf import settings
@@ -8,10 +10,12 @@ from dsmr_datalogger.exceptions import InvalidTelegramError
 import dsmr_datalogger.services
 
 
+logger = logging.getLogger('commands')
+
+
 class Command(InfiniteManagementCommandMixin, BaseCommand):
     help = _('Performs an DSMR P1 telegram reading on the COM port.')
     name = __name__  # Required for PID file.
-    sleep_time = 0.25
     sleep_time = settings.DSMRREADER_DATALOGGER_SLEEP
 
     def run(self, **options):
@@ -23,9 +27,7 @@ class Command(InfiniteManagementCommandMixin, BaseCommand):
             raise CommandError("Datalogger tracking is DISABLED!")
 
         telegram = dsmr_datalogger.services.read_telegram()
-
-        # Reflect output to STDOUT for logging and convenience.
-        self.stdout.write(telegram)
+        logger.info("\n%s", telegram)
 
         try:
             dsmr_datalogger.services.telegram_to_reading(data=telegram)

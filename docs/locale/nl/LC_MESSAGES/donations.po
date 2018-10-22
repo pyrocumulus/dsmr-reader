@@ -8,6 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: DSMR Reader 1.x\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-17 18:40+0200\n"
+"PO-Revision-Date: 2018-10-17 18:43+0200\n"
 "Last-Translator: \n"
 "Language: nl\n"
 "Language-Team: \n"
@@ -19,33 +21,42 @@ msgstr ""
 "X-Generator: Poedit 1.8.7.1\n"
 
 #: ../../donations.rst:2
-msgid "Donations"
-msgstr "Donaties"
+msgid "Donations / tips"
+msgstr "Donaties / fooien"
 
 #: ../../donations.rst:4
 msgid ""
-"Do you like this project and do you want to buy me a beer or coffee? You "
-"are always welcome to make a small donation as a token of appreciation!"
+"Do you like this project or has it given you a lot of insight in your "
+"energy consumption? And would you like to return me the favor and buy me "
+"a beer/coffee?"
 msgstr ""
-"Waardeer je dit project en wil je mij trakteren op een biertje of kop "
-"koffie? Een kleine donatie als bedankje wordt altijd gewaardeerd!"
+"Ben je voorstander van dit project? Of heeft het je simpelweg veel "
+"inzicht gegeven in je energieverbruik? En wil je iets voor me terugdoen "
+"en mij trakeren op een kop koffie of een biertje?"
 
-#: ../../donations.rst:8
-msgid "`Donate using PayPal <https://www.paypal.me/DSiemensma>`_"
-msgstr "`Doneer via PayPal <https://www.paypal.me/DSiemensma>`_"
-
-#: ../../donations.rst:12
+#: ../../donations.rst:7
 msgid ""
-"Know that this project **will always be free to use** and I already do "
-"make a living with my regular job."
+"You are always welcome to make any amount of donation, as a token of "
+"appreciation!"
 msgstr ""
-"Weet dat dit project **altijd gratis te gebruiken zal zijn** en dat ik "
-"momenteel al rondkom met mijn doordeweekse baan."
+"Je bent van harte welkom om een donatie te doen aan dit project, hoe "
+"klein ook! "
 
-#: ../../donations.rst:14
-msgid ""
-"Please do not pressure me by \"donating for new features\", but only for "
-"liking what you are using so far... Thanks! =)"
-msgstr ""
-"Doneer alleen uit waardering voor wat je tot nu toe gebruikt en "
-"alsjeblieft niet voor nieuwe features. Bedankt! =)"
+#: ../../donations.rst:10
+msgid "Link: `Donate using PayPal <https://www.paypal.me/DSiemensma>`_"
+msgstr "Link: `Doneer via PayPal <https://www.paypal.me/DSiemensma>`_"
+
+#~ msgid ""
+#~ "Know that this project **will always be free to use** and I already "
+#~ "do make a decent salary with my regular job. =)"
+#~ msgstr ""
+#~ "Weet dat dit project **altijd gratis te gebruiken zal zijn** en dat "
+#~ "ik momenteel al prima rondkom met mijn doordeweekse baan. Ik hoef er "
+#~ "niet van rond te komen. =)"
+
+#~ msgid ""
+#~ "Please do not pressure me by \"donating for new features\", but only "
+#~ "for liking what you are using so far... Thanks!"
+#~ msgstr ""
+#~ "Doneer alleen uit waardering voor wat je tot nu toe gebruikt en "
+#~ "alsjeblieft niet voor nieuwe features. Bedankt!"

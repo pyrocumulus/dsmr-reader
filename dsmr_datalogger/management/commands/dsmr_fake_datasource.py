@@ -1,4 +1,5 @@
 from decimal import Decimal, ROUND_UP
+import logging
 import random
 import time
 
@@ -10,6 +11,9 @@ from django.conf import settings
 
 from dsmr_backend.mixins import InfiniteManagementCommandMixin
 import dsmr_datalogger.services
+
+
+logger = logging.getLogger('commands')
 
 
 class Command(InfiniteManagementCommandMixin, BaseCommand):
@@ -61,7 +65,7 @@ class Command(InfiniteManagementCommandMixin, BaseCommand):
             options['with_electricity_returned'],
             options['hour_offset']
         )
-        print(telegram)  # For convenience
+        logger.info("\n%s", telegram)  # For convenience
 
         dsmr_datalogger.services.telegram_to_reading(data=telegram)
 
@@ -70,12 +74,12 @@ class Command(InfiniteManagementCommandMixin, BaseCommand):
         now = timezone.now() + timezone.timedelta(hours=int(hour_offset))
         now = timezone.localtime(now)  # Must be local.
 
-        self.stdout.write('-' * 32)
-        self.stdout.write(str(now))
-        self.stdout.write('with gas: {}'.format(with_gas))
-        self.stdout.write('with electricity returned: {}'.format(with_electricity_returned))
-        self.stdout.write('-' * 32)
-        self.stdout.write('')
+        logger.debug('-' * 32)
+        logger.debug(str(now))
+        logger.debug('with gas: %s', with_gas)
+        logger.debug('with electricity returned: %s', with_electricity_returned)
+        logger.debug('-' * 32)
+        logger.debug('')
 
         # 1420070400: 01 Jan 2015 00:00:00 GMT
         current_unix_time = time.mktime(now.timetuple())
@@ -88,13 +92,25 @@ class Command(InfiniteManagementCommandMixin, BaseCommand):
         electricity_2_returned = 0
         gas = electricity_base * 0.3  # Random as well.
 
-        currently_delivered = random.randint(0, 1500) * 0.001  # kW
+        currently_delivered_l1 = random.randint(0, 1500) * 0.001  # kW
+        currently_delivered_l2 = random.randint(0, 1500) * 0.001  # kW
+        currently_delivered_l3 = random.randint(0, 1500) * 0.001  # kW
+        currently_delivered = currently_delivered_l1 + currently_delivered_l2 + currently_delivered_l3
+        currently_returned_l1 = 0
+        currently_returned_l2 = 0
+        currently_returned_l3 = 0
         currently_returned = 0
 
-        if with_electricity_returned:
-            electricity_1_returned = electricity_1 * 0.1  # Random though of solar panel during night.
-            electricity_2_returned = electricity_1 * 1.25  # Random number.
-            currently_returned = random.randint(0, 2500) * 0.001  # kW
+        # Randomly switch between electricity delivered and returned each 5 seconds for a more realistic graph.
+        if with_electricity_returned and second_since % 10 < 5:
+            currently_returned = currently_delivered
+            currently_returned_l1 = currently_delivered_l1
+            currently_returned_l2 = currently_delivered_l2
+            currently_returned_l3 = currently_delivered_l3
+            currently_delivered_l1 = 0
+            currently_delivered_l2 = 0
+            currently_delivered_l3 = 0
+            currently_delivered = 0
 
         data = [
             "/XMX5LGBBFFB123456789\r\n",
@@ -125,12 +141,12 @@ class Command(InfiniteManagementCommandMixin, BaseCommand):
             "1-0:31.7.0(000*A)\r\n",
             "1-0:51.7.0(000*A)\r\n",
             "1-0:71.7.0(001*A)\r\n",
-            "1-0:21.7.0({}*kW)\r\n".format(self._round_precision(currently_delivered * 0.5, 6)),
-            "1-0:41.7.0({}*kW)\r\n".format(self._round_precision(currently_delivered * 0.75, 6)),
-            "1-0:61.7.0({}*kW)\r\n".format(self._round_precision(currently_delivered, 6)),
-            "1-0:22.7.0({}*kW)\r\n".format(self._round_precision(currently_returned * 0.5, 6)),
-            "1-0:42.7.0({}*kW)\r\n".format(self._round_precision(currently_returned * 0.75, 6)),
-            "1-0:62.7.0({}*kW)\r\n".format(self._round_precision(currently_returned, 6)),
+            "1-0:21.7.0({}*kW)\r\n".format(self._round_precision(currently_delivered_l1, 6)),
+            "1-0:41.7.0({}*kW)\r\n".format(self._round_precision(currently_delivered_l2, 6)),
+            "1-0:61.7.0({}*kW)\r\n".format(self._round_precision(currently_delivered_l3, 6)),
+            "1-0:22.7.0({}*kW)\r\n".format(self._round_precision(currently_returned_l1, 6)),
+            "1-0:42.7.0({}*kW)\r\n".format(self._round_precision(currently_returned_l2, 6)),
+            "1-0:62.7.0({}*kW)\r\n".format(self._round_precision(currently_returned_l3, 6)),
         ]
 
         if with_gas:
